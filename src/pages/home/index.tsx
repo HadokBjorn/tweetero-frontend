@@ -1,12 +1,23 @@
 import styled from "styled-components";
 import birdImage from "../../assets/bird.webp"
 import { useNavigate } from "react-router-dom";
-
+import api from "../../helper/api";
+import { useState } from "react";
+interface User{
+    username: string,
+    avatar: string,
+}
 function Home() {
+    const [body, setBody] = useState<User>({username: "", avatar: "",})
     const navigate = useNavigate();
     const login = (e: React.FormEvent<HTMLFormElement>):void => {
         e.preventDefault();
-        navigate("/tweets");
+        api.post("/users", body)
+            .then(() => {navigate("/tweets")})
+            .catch(() => {navigate("/")})
+    }
+    const handleChange = (e:React.ChangeEvent<HTMLInputElement>):void => {
+        setBody({...body, [e.target.name]:e.target.value})
     }
     return (
         <Container>
@@ -20,15 +31,19 @@ function Home() {
                 name="username"
                 minLength={3}
                 maxLength={150}
+                value={body.username}
+                onChange={handleChange}
                 autoFocus
                 required/>
 
                 <input 
                 placeholder="Cole aqui a url da sua foto" 
                 type="url" 
-                name="image"
+                name="avatar"
                 minLength={3}
                 maxLength={150}
+                value={body.avatar}
+                onChange={handleChange}
                 required/>
 
                 <button type="submit" >Entrar</button>
