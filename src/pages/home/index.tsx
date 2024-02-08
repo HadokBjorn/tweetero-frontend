@@ -3,17 +3,18 @@ import birdImage from "../../assets/bird.webp"
 import { useNavigate } from "react-router-dom";
 import api from "../../helper/api";
 import { useState } from "react";
-interface User{
-    username: string,
-    avatar: string,
-}
+import { IUser } from "../../interfaces";
+
 function Home() {
-    const [body, setBody] = useState<User>({username: "", avatar: "",})
+    const [body, setBody] = useState<IUser>({username: "", avatar: "",})
     const navigate = useNavigate();
     const login = (e: React.FormEvent<HTMLFormElement>):void => {
         e.preventDefault();
         api.post("/users", body)
-            .then(() => {navigate("/tweets")})
+            .then((res) => {
+                navigate("/tweets")
+                localStorage.setItem("userId", res.data.id)                
+            })
             .catch(() => {navigate("/")})
     }
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>):void => {
