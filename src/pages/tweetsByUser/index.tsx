@@ -1,8 +1,13 @@
 import styled from "styled-components";
 import birdImage from "../../assets/bird.webp";
 import Card from "../../components/card";
+import GetApi from "../../hooks/getApi";
+import { useParams } from "react-router-dom";
+import { ITweet } from "../../interfaces";
 
 function TweetsByUser() {
+    const { userId } = useParams();
+    const {data, error: err,isLoading} = GetApi<ITweet[]>(`/tweets/user/${userId}`);
     return (
         <Container>
             <header>
@@ -10,16 +15,24 @@ function TweetsByUser() {
                 <img className="bird_right" src={birdImage} alt="logo de passaro"/>
 
                 <ImageContainer>
-                    <img src={birdImage} />
-                    <p>@username</p>
+                    <img src={data?data[0].user.avatar:birdImage} />
+                    <p>@{data?data[0].user.username:"username"}</p>
                 </ImageContainer>
 
             </header>
             <TweetList>
-                <Card />
-                <Card />
-                <Card />
-                <Card />
+            {(isLoading && !data) && <h2>Carregando</h2>}
+                {err && <h2>Desculpe algo deu errado</h2>}
+                {
+                    (!isLoading && !err && data != null) && data.map((element: ITweet)=>{
+                        return (
+                        <Card 
+                            key={element.id} 
+                            tweet={element}
+                        />
+                        )
+                    })
+                }
             </TweetList>
         </Container>
     )
@@ -90,6 +103,8 @@ const ImageContainer = styled.div`
         width: 100%;
         height: 100%;
         border-radius: 50%;
+        object-fit: cover;
+        object-position: center;
         background-color: aliceblue;
         box-shadow: #111 0px 15px 40px -15px;
     }
@@ -100,6 +115,7 @@ const ImageContainer = styled.div`
     `
 const TweetList = styled.ul`
     list-style: none;
+    width: 100%;
     padding: 0;
     margin: 0;
     box-sizing: border-box;
