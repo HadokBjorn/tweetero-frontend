@@ -2,20 +2,50 @@ import styled from "styled-components";
 import birdImage from "../../assets/bird.webp";
 import { BiSend } from "react-icons/bi";
 import Card from "../../components/card";
+import GetApi from "../../hooks/getApi";
+import { ITweet, ITweetPost } from "../../interfaces";
+import api from "../../helper/api";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 function Tweets() {
+    const {data ,error: err, isLoading } = GetApi<ITweet[]>("/tweets");
+    const userId = localStorage.getItem("userId");
+    const [tweet, setTweet] = useState<ITweetPost>({userId: 0, tweet: ""})
+    const reloadPage = () => window.location.reload();
+    const navigate = useNavigate();
+
+    const sendTweet = (e: React.FormEvent<HTMLFormElement>):void => {
+        e.preventDefault();
+        api.post("/tweets",tweet)
+            .then(()=>{
+                reloadPage()
+            })
+            .catch((err) => console.error(err));
+    }
+
+    useEffect(()=>{
+        if(userId){
+            setTweet({...tweet, userId: parseInt(userId)})            
+        }else{
+            navigate("/")
+        }
+    },[])
+    
     return (
         <Container>
-            <form onSubmit={()=>{}}>
+            <form onSubmit={sendTweet}>
                 <img className="bird_left" src={birdImage} alt="logo de passaro"/>
                 <img className="bird_right" src={birdImage} alt="logo de passaro"/>
                 
                 <input 
                 placeholder="O que você está pensando?" 
                 type="text" 
-                name="username"
+                name="tweet"
                 maxLength={250}
                 autoFocus
+                onChange={(e)=>setTweet({...tweet, [e.target.name]:e.target.value})}
                 required/>
 
                 <button type="submit" >
@@ -23,10 +53,18 @@ function Tweets() {
                 </button>
             </form>
             <TweetList>
-                <Card />
-                <Card />
-                <Card />
-                <Card />
+                {(isLoading && !data) && <h2>Carregando</h2>}
+                {err && <h2>Desculpe algo deu errado</h2>}
+                {
+                    (!isLoading && !err && data != null) && data.map((element: ITweet)=>{
+                        return (
+                        <Card 
+                            key={element.id} 
+                            tweet={element}
+                        />
+                        )
+                    })
+                }
             </TweetList>
         </Container>
     )
@@ -112,6 +150,7 @@ const TweetList = styled.ul`
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    width: 100%;
 
     display: flex;
     flex-direction: column;
@@ -120,6 +159,7 @@ const TweetList = styled.ul`
 
     li:hover{
         background-color: #85affd;
+        cursor: pointer;
     }
     
 `
