@@ -1,17 +1,16 @@
 import styled from "styled-components";
-import birdImage from "../../assets/bird.webp";
-function Card() {
+import { ITweet } from "../../interfaces";
+import { useNavigate } from "react-router-dom";
+function Card({tweet}:{tweet: ITweet}) {
+    const navigate = useNavigate()
     return (
-        <Container>
+        <Container onClick={()=>navigate(`/account/${tweet.user.id}`)}>
             <ImageContainer>
-                <img src={birdImage} />
+                <img src={tweet.user.avatar} />
             </ImageContainer>
             <Content>
-                <p>@username</p>
-                <h3>
-                    Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum 
-                    Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum 
-                </h3>
+                <p>@{tweet.user.username}</p>
+                <h3>{tweet.tweet}</h3>
             </Content>
         </Container>
     )
@@ -26,7 +25,7 @@ const Container = styled.li`
 
     width: 100%;
     min-height: 100px;
-    box-sizing: border-box;
+    *{box-sizing: border-box;}
 
 
     padding: 10px;
@@ -42,23 +41,29 @@ const Container = styled.li`
 `
 const ImageContainer = styled.aside`
     width: 80px;
-    height: auto;
+    height: 80px;
+    margin: 0;
+    padding: 0;
+
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 50%;
-    background-color: aliceblue;
+    background-color:#fff;
 
     img{
         width: 100%;
         height: 100%;
-        //object-fit: contain;
+        object-fit: cover;
+        object-position: center;
         border-radius: 50%;
 
     }
 `
 const Content = styled.div`
-    width: 100%;
+    width: 80%;
 
     p{
         padding: 0;
@@ -69,7 +74,7 @@ const Content = styled.div`
     h3{
         padding: 0;
         margin: 0;
-        font-size: small;
+        font-size: medium;
         text-align: justify;
     }
 `
